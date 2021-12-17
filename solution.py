@@ -28,13 +28,13 @@ class Solution:
             HxWx(2*dsp_range+1).
         """
         num_of_rows, num_of_cols = left_image.shape[0], left_image.shape[1]
-        disparity_values = range(-dsp_range, dsp_range+1)
+        disparity_values = range(-dsp_range, dsp_range + 1)
         ssdd_tensor = np.zeros((num_of_rows,
                                 num_of_cols,
                                 len(disparity_values)))
 
         for disparity in disparity_values:
-            # right image is shifted opposite the sign of the disparity
+            # right image is shifted 'opposite' the sign of the disparity in compliance with np.roll direction
             shifted_right_image = np.roll(right_image, -disparity, axis=1)
             if disparity < 0:  # right image is shifted to the right, left columns are zero-padded
                 shifted_right_image[:, :-disparity, :] = 0
@@ -44,7 +44,7 @@ class Solution:
             ssdd_matrix = left_image - shifted_right_image
             ssdd_matrix = np.sum(ssdd_matrix ** 2, axis=2)
             ssdd_tensor[:, :, disparity - np.min(disparity_values)] = \
-                convolve2d(ssdd_matrix, np.ones((win_size, win_size)), boundary='fill', fillvalue=0, mode='same')
+                convolve2d(ssdd_matrix, np.ones((win_size, win_size)), mode='same')
 
         ssdd_tensor -= ssdd_tensor.min()
         ssdd_tensor /= ssdd_tensor.max()
@@ -67,9 +67,7 @@ class Solution:
         Returns:
             Naive labels HxW matrix.
         """
-        # you can erase the label_no_smooth initialization.
-        label_no_smooth = np.zeros((ssdd_tensor.shape[0], ssdd_tensor.shape[1]))
-        """INSERT YOUR CODE HERE"""
+        label_no_smooth = np.argmin(ssdd_tensor, axis=2)
         return label_no_smooth
 
     @staticmethod
