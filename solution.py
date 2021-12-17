@@ -88,8 +88,24 @@ class Solution:
         """
         num_labels, num_of_cols = c_slice.shape[0], c_slice.shape[1]
         l_slice = np.zeros((num_labels, num_of_cols))
-        """INSERT YOUR CODE HERE"""
+        for column in range(num_of_cols):
+            prev_column = l_slice[:, column - 1]
+            optimal_route_cost = Solution.compute_optimal_route_cost(num_labels, num_of_cols, p1, p2, prev_column)
+            l_slice[:, column] = c_slice[:, column] + optimal_route_cost - np.min(prev_column)
+
         return l_slice
+
+    @staticmethod
+    def compute_optimal_route_cost(num_labels, num_of_cols, p1, p2, prev_column):
+        same_label_candidate = prev_column
+        adjacent_label_candidate = p1 + np.minimum(np.pad(prev_column, (1, 0), constant_values=np.Inf)[:-1],
+                                                   np.pad(prev_column, (0, 1), constant_values=np.Inf)[1:])
+
+        distant_label_candidate = p2 + np.array(
+            [np.min(np.concatenate((prev_column[:max(label - 1, 0)], prev_column[min(label + 2, num_of_cols):])))
+             for label in range(num_labels)])
+
+        return np.minimum(same_label_candidate, adjacent_label_candidate, distant_label_candidate)
 
     def dp_labeling(self,
                     ssdd_tensor: np.ndarray,
@@ -113,8 +129,10 @@ class Solution:
             Dynamic Programming depth estimation matrix of shape HxW.
         """
         l = np.zeros_like(ssdd_tensor)
-        """INSERT YOUR CODE HERE"""
-        return self.naive_labeling(l)
+        for row_index in range(ssdd_tensor.shape[0]):
+            l[row_index, :, :] = Solution.dp_grade_slice(ssdd_tensor[row_index, :, :].T, p1, p2).T
+
+        return np.argmin(l, axis=2)
 
     def dp_labeling_per_direction(self,
                                   ssdd_tensor: np.ndarray,
