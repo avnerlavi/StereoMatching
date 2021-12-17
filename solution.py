@@ -32,7 +32,20 @@ class Solution:
         ssdd_tensor = np.zeros((num_of_rows,
                                 num_of_cols,
                                 len(disparity_values)))
-        """INSERT YOUR CODE HERE"""
+
+        for disparity in disparity_values:
+            # right image is shifted opposite the sign of the disparity
+            shifted_right_image = np.roll(right_image, -disparity, axis=1)
+            if disparity < 0:  # right image is shifted to the right, left columns are zero-padded
+                shifted_right_image[:, :-disparity, :] = 0
+            else:  # right image is shifted to the left, right columns are zero-padded
+                shifted_right_image[:, num_of_cols - disparity:, :] = 0
+
+            ssdd_matrix = left_image - shifted_right_image
+            ssdd_matrix = np.sum(ssdd_matrix ** 2, axis=2)
+            ssdd_tensor[:, :, disparity - np.min(disparity_values)] = \
+                convolve2d(ssdd_matrix, np.ones((win_size, win_size)), boundary='fill', fillvalue=0, mode='same')
+
         ssdd_tensor -= ssdd_tensor.min()
         ssdd_tensor /= ssdd_tensor.max()
         ssdd_tensor *= 255.0
