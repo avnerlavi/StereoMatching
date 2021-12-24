@@ -94,7 +94,7 @@ class Solution:
 
         for column in range(num_of_cols):
             prev_column = l_slice[:, column - 1]
-            optimal_route_cost = Solution.compute_optimal_route_cost(num_labels, num_of_cols, p1, p2, prev_column)
+            optimal_route_cost = Solution.compute_optimal_route_cost(num_labels, p1, p2, prev_column)
             l_slice[:, column] = c_slice[:, column] + optimal_route_cost - np.min(prev_column)
 
         return l_slice
@@ -212,9 +212,7 @@ class Solution:
             slices_by_direction = self.get_slices_by_direction(ssdd_tensor, direction)
             slice_indices_by_direction = self.get_slices_by_direction(meshgrid, direction)
             label_slices = [Solution.dp_grade_slice(ssdd_slice, p1, p2) for ssdd_slice in slices_by_direction]
-            l = self.create_label_matrix_from_slices(ssdd_tensor.shape, label_slices, slice_indices_by_direction,
-                                                     direction, num_of_directions)
-
+            l = self.create_label_tensor_from_slices(ssdd_tensor.shape, label_slices, slice_indices_by_direction)
             direction_to_slice[direction] = np.argmin(l, 2)
 
         return direction_to_slice
@@ -249,7 +247,7 @@ class Solution:
             slices_by_direction = self.get_slices_by_direction(ssdd_tensor, direction)
             slice_indices_by_direction = self.get_slices_by_direction(meshgrid, direction)
             label_slices = [Solution.dp_grade_slice(ssdd_slice, p1, p2) for ssdd_slice in slices_by_direction]
-            l += self.create_label_matrix_from_slices(ssdd_tensor.shape, label_slices, slice_indices_by_direction,
-                                                      direction, num_of_directions)
+            l += self.create_label_tensor_from_slices(ssdd_tensor.shape, label_slices, slice_indices_by_direction)
+            
         l = l / num_of_directions
         return np.argmin(l, axis=2)
