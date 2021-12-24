@@ -96,16 +96,17 @@ class Solution:
         return l_slice
 
     @staticmethod
-    def compute_optimal_route_cost(num_labels, num_of_cols, p1, p2, prev_column):
-        same_label_candidate = prev_column
-        adjacent_label_candidate = p1 + np.minimum(np.pad(prev_column, (1, 0), constant_values=np.Inf)[:-1],
-                                                   np.pad(prev_column, (0, 1), constant_values=np.Inf)[1:])
+    def compute_optimal_route_cost(num_labels: int,
+                                   p1: float,
+                                   p2: float,
+                                   prev_column: np.ndarray) -> np.ndarray:
+        disparity_labels = np.mgrid[range(num_labels), range(num_labels)]
 
-        distant_label_candidate = p2 + np.array(
-            [np.min(np.concatenate((prev_column[:max(label - 1, 0)], prev_column[min(label + 2, num_of_cols):])))
-             for label in range(num_labels)])
+        candidate_matrix = np.array([prev_column] * num_labels).reshape((num_labels, num_labels))
+        candidate_matrix[abs(disparity_labels[0] - disparity_labels[1]) == 1] += p1
+        candidate_matrix[abs(disparity_labels[0] - disparity_labels[1]) > 1] += p2
 
-        return np.minimum(same_label_candidate, adjacent_label_candidate, distant_label_candidate)
+        return np.amin(candidate_matrix, axis=1)
 
     def dp_labeling(self,
                     ssdd_tensor: np.ndarray,
