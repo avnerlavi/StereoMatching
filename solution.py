@@ -140,36 +140,36 @@ class Solution:
         return np.argmin(l, axis=2)
 
     @staticmethod
-    def rotate_matrix_by_direction(matrix_to_rotate: np.ndarray,
+    def rotate_tensor_by_direction(tensor_to_rotate: np.ndarray,
                                    direction: int) -> np.ndarray:
         if direction % 2 == 1:  # row/column slices
             # if direction is 1/5- rows, else- columns and we transpose
-            rotated_matrix = matrix_to_rotate if np.remainder(direction, 4) == 1 else matrix_to_rotate.transpose((1, 0, 2))
+            rotated_tensor = tensor_to_rotate if np.remainder(direction, 4) == 1 else tensor_to_rotate.transpose((1, 0, 2))
             # if direction is 5/7 the rows(/columns) are reversed, so flip left/right
-            rotated_matrix = rotated_matrix if direction <= 4 else np.fliplr(rotated_matrix)
+            rotated_tensor = rotated_tensor if direction <= 4 else np.fliplr(rotated_tensor)
         else:  # diagonal slices
             # if direction is 6/8 the diagonals are bottom-row first, so flip up/down
-            rotated_matrix = matrix_to_rotate if direction <= 4 else np.flipud(matrix_to_rotate)
+            rotated_tensor = tensor_to_rotate if direction <= 4 else np.flipud(tensor_to_rotate)
             # if direction is 4/6 the diagonals are higher-column first, so flip left/right
-            rotated_matrix = rotated_matrix if abs(direction - 5) > 2 else np.fliplr(rotated_matrix)
+            rotated_tensor = rotated_tensor if abs(direction - 5) > 2 else np.fliplr(rotated_tensor)
 
-        return rotated_matrix
+        return rotated_tensor
 
     def get_slices_by_direction(self,
                                 tensor_to_slice: np.ndarray,
                                 direction: int) -> List[np.ndarray]:
-        rotated_tensor = Solution.rotate_matrix_by_direction(tensor_to_slice, direction)
+        rotated_tensor = Solution.rotate_tensor_by_direction(tensor_to_slice, direction)
         if direction % 2 == 1:  # row/column slices
             return [rotated_tensor[row_index, :, :].T for row_index in range(rotated_tensor.shape[0])]
         else:  # diagonal slices
             return [np.diagonal(rotated_tensor, offset=offset) for offset in
                     range(-rotated_tensor.shape[0] + 1, rotated_tensor.shape[1])]
 
-    def create_label_matrix_from_slices(self,
-                                        label_matrix_shape: Tuple[int],
+    def create_label_tensor_from_slices(self,
+                                        label_tensor_shape: Tuple[int],
                                         slice_values: List[np.ndarray],
                                         slice_index_list: List[np.ndarray]) -> np.ndarray:
-        l = np.zeros(label_matrix_shape)
+        l = np.zeros(label_tensor_shape)
         for slice_indices, slice_value in zip(slice_index_list, slice_values):
             l[slice_indices[0], slice_indices[1]] = slice_value.T
         return l
