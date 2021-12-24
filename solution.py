@@ -248,6 +248,6 @@ class Solution:
             slice_indices_by_direction = self.get_slices_by_direction(meshgrid, direction)
             label_slices = [Solution.dp_grade_slice(ssdd_slice, p1, p2) for ssdd_slice in slices_by_direction]
             l += self.create_label_tensor_from_slices(ssdd_tensor.shape, label_slices, slice_indices_by_direction)
-            
+
         l = l / num_of_directions
         return np.argmin(l, axis=2)
