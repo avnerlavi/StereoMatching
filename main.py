@@ -32,7 +32,7 @@ def forward_map(left_image, labels):
     for row in range(left_image.shape[0]):
         cols = range(left_image.shape[1])
         mapped[row,
-               np.clip(cols - labels[row, ...], 0, left_image.shape[1] - 1),
+               np.clip(cols + labels[row, ...], 0, left_image.shape[1] - 1),
                ...] = left_image[row, cols, ...]
     return mapped
 
