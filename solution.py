@@ -44,6 +44,8 @@ class Solution:
 
             ssdd_matrix = left_image - shifted_right_image
             ssdd_matrix = np.sum(ssdd_matrix ** 2, axis=2)
+            # Q. 14 BONUS
+            # ssdd_matrix = np.sum(np.abs(ssdd_matrix), axis=2)
             ssdd_tensor[:, :, disparity - np.min(disparity_values)] = \
                 convolve2d(ssdd_matrix, np.ones((win_size, win_size)), mode='same')
 
@@ -107,8 +109,12 @@ class Solution:
         disparity_labels = np.mgrid[range(num_labels), range(num_labels)]
 
         candidate_matrix = np.array([prev_column] * num_labels).reshape((num_labels, num_labels))
-        candidate_matrix[abs(disparity_labels[0] - disparity_labels[1]) == 1] += p1
-        candidate_matrix[abs(disparity_labels[0] - disparity_labels[1]) > 1] += p2
+        disparity_distances = abs(disparity_labels[0] - disparity_labels[1])
+        candidate_matrix[disparity_distances == 1] += p1
+        candidate_matrix[disparity_distances > 1] += p2
+        # Q. 15 BONUS
+        # disparity_distances = disparity_distances ** 2
+        # candidate_matrix += (disparity_distances - np.mean(disparity_distances)) * p2 / np.max(disparity_distances)
 
         return np.amin(candidate_matrix, axis=1)
 
